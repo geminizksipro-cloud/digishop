@@ -1,6 +1,5 @@
 import express from 'express';
 import path from 'path';
-import { createServer as createViteServer } from 'vite';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
@@ -63,6 +62,14 @@ const app = express();
 
   // Middleware for body parsing
   app.use(express.json());
+
+  // Support Netlify Serverless Functions path prefix routing
+  app.use((req, res, next) => {
+    if (req.url.startsWith('/.netlify/functions/api')) {
+      req.url = req.url.replace('/.netlify/functions/api', '/api');
+    }
+    next();
+  });
 
   // Custom CORS middleware to support cross-origin requests (e.g. from Netlify)
   app.use((req, res, next) => {
@@ -428,6 +435,7 @@ async function startStandaloneServer() {
 
   // Vite middleware for development vs static asset delivery for production
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
