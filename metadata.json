@@ -1,0 +1,6 @@
+{
+  "name": "DigiMarkt BD",
+  "description": "Premium Digital Product Marketplace for Bangladesh featuring scripts, templates, UI kits, and SaaS assets with a modern Frosted Glass design.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

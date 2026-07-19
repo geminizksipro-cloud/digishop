@@ -1,0 +1,143 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Public and private information for registered Bangladeshi users",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100,
+          "description": "The user's display name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User's email address (strictly secure PII)"
+        },
+        "avatar": {
+          "type": "string",
+          "description": "URL to user's profile photo"
+        },
+        "phone": {
+          "type": "string",
+          "pattern": "^(?:\\+8801|01)[3-9]\\d{8}$",
+          "description": "Bangladeshi phone number format"
+        },
+        "joinedDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Profile registration timestamp"
+        },
+        "wishlist": {
+          "type": "array",
+          "description": "Array of saved product ID strings"
+        },
+        "purchasedProductIds": {
+          "type": "array",
+          "description": "Array of product ID strings purchased by user"
+        }
+      },
+      "required": ["name", "email", "avatar", "joinedDate"]
+    },
+    "Product": {
+      "title": "Digital Asset",
+      "description": "Premium digital scripts, templates or plugins sold on the marketplace",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 150
+        },
+        "shortDescription": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "longDescription": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "priceUSD": {
+          "type": "number"
+        },
+        "priceBDT": {
+          "type": "number"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["UI Templates", "Scripts & Plugins", "Mobile Kits", "AI Scripts", "Design Assets"]
+        },
+        "rating": {
+          "type": "number"
+        },
+        "salesCount": {
+          "type": "integer"
+        },
+        "fileSize": {
+          "type": "string"
+        },
+        "licenseType": {
+          "type": "string"
+        },
+        "downloadUrl": {
+          "type": "string"
+        }
+      },
+      "required": ["title", "shortDescription", "longDescription", "priceUSD", "priceBDT", "category", "rating", "salesCount", "fileSize", "licenseType", "downloadUrl"]
+    },
+    "Order": {
+      "title": "Purchase Order",
+      "description": "Historic ledger of user transactions and digital delivery logs",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Reference key to authenticated purchasing user"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "items": {
+          "type": "array",
+          "description": "List of ordered items with prices and licenses"
+        },
+        "totalUSD": {
+          "type": "number"
+        },
+        "totalBDT": {
+          "type": "number"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["bKash", "Nagad", "Rocket", "SSLCommerz", "Stripe"]
+        },
+        "paymentStatus": {
+          "type": "string",
+          "enum": ["Pending", "Processing", "Paid", "Delivered", "Refunded", "Cancelled"]
+        },
+        "licenseKeys": {
+          "type": "object",
+          "description": "Cryptographically generated keys mapped per product"
+        }
+      },
+      "required": ["userId", "date", "items", "totalUSD", "totalBDT", "paymentMethod", "paymentStatus", "licenseKeys"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Store profile settings, purchase summaries, and wishlists per user"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Digital items details, prices, platform details, and download configurations"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Purchase receipts, payment status, and secure product keys"
+    }
+  }
+}
