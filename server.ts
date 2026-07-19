@@ -25,16 +25,27 @@ const getFirebaseAdminDb = () => {
       });
     } else {
       console.log('Firebase Admin: Initializing using local default credentials.');
-      initializeApp({
-        projectId: "ai-studio-applet-webapp-105ba"
-      });
+      try {
+        initializeApp({
+          projectId: "ai-studio-applet-webapp-105ba"
+        });
+      } catch (err: any) {
+        console.error("Failed to initialize Firebase with default credentials:", err.message);
+        throw new Error("Firebase Admin credentials are required in this environment. Please configure FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY.");
+      }
     }
   }
   const dbId = process.env.FIREBASE_DATABASE_ID || "ai-studio-digimarktbd-809b0803-e513-4cac-b196-2ecffa5af32f";
   return getFirestore(dbId);
 };
 
-const db = getFirebaseAdminDb();
+let dbInstance: any = null;
+const getDb = () => {
+  if (!dbInstance) {
+    dbInstance = getFirebaseAdminDb();
+  }
+  return dbInstance;
+};
 
 // UddoktaPay / Paymently API Configurations
 const UDDOKTAPAY_API_KEY = process.env.PAYMENT_API_KEY || process.env.UDDOKTAPAY_API_KEY || 'u8jrK1ke69REzIELoy9SRl10vExeRksPRpjP7m8A';
@@ -85,7 +96,7 @@ const app = express();
 
       try {
         // Query product details from Firestore to catch any dynamic price updates
-        const productSnap = await db.collection('products').doc(productId).get();
+        const productSnap = await getDb().collection('products').doc(productId).get();
         if (productSnap.exists) {
           const data = productSnap.data();
           if (data) {
@@ -122,7 +133,7 @@ const app = express();
     const cartItems = typeof metadata.cart === 'string' ? JSON.parse(metadata.cart) : metadata.cart;
 
     // Check if order already exists in Firestore to avoid duplicate writes
-    const orderSnap = await db.collection('orders').doc(orderId).get();
+    const orderSnap = await getDb().collection('orders').doc(orderId).get();
     if (orderSnap.exists) {
       return orderSnap.data();
     }
@@ -137,7 +148,7 @@ const app = express();
       let isAccountOrSubscription = false;
 
       try {
-        const productSnap = await db.collection('products').doc(pId).get();
+        const productSnap = await getDb().collection('products').doc(pId).get();
         if (productSnap.exists) {
           const productData = productSnap.data();
           if (productData) {
@@ -194,12 +205,12 @@ const app = express();
     };
 
     // Save order to Firestore using admin SDK (bypasses security rules)
-    await db.collection('orders').doc(orderId).set(orderData);
+    await getDb().collection('orders').doc(orderId).set(orderData);
 
     // Save purchased product ids to user's profile if signed in
     if (userId && userId !== 'guest@digimarkt.bd') {
       try {
-        const userSnap = await db.collection('users').doc(userId).get();
+        const userSnap = await getDb().collection('users').doc(userId).get();
         let purchasedIds: string[] = [];
         if (userSnap.exists) {
           const uData = userSnap.data();
@@ -207,7 +218,7 @@ const app = express();
         }
         const newProductIds = cartItems.map((item: any) => item.product?.id || item.productId);
         const mergedIds = Array.from(new Set([...purchasedIds, ...newProductIds]));
-        await db.collection('users').doc(userId).set({ purchasedProductIds: mergedIds }, { merge: true });
+        await getDb().collection('users').doc(userId).set({ purchasedProductIds: mergedIds }, { merge: true });
       } catch (err) {
         console.error('Error writing customer purchase history to Firestore:', err);
       }
@@ -216,7 +227,7 @@ const app = express();
     // Also write activity log for security
     try {
       const logId = `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
-      await db.collection('activityLogs').doc(logId).set({
+      await getDb().collection('activityLogs').doc(logId).set({
         id: logId,
         time: new Date().toLocaleString(),
         user: customerName || 'system',

@@ -16,22 +16,12 @@ export function getApiUrl(path: string): string {
     return `${origin}${cleanPath}`;
   }
 
-  // Netlify Serverless Function support:
-  // Since we set up netlify.toml redirects to route /api/* to the serverless function,
-  // we should use relative path on Netlify so it calls their own Netlify backend with their custom environment variables!
-  if (hostname.includes('netlify.app') || hostname === 'dgshopbd.netlify.app') {
-    return cleanPath;
-  }
-
-  // If we are on Vercel or custom domains other than the backend host, we use the deployed server's absolute URL
-  if (
-    hostname.includes('vercel.app') || 
-    (hostname === 'localhost' && window.location.port !== '3000' && window.location.port !== '5173')
-  ) {
+  // If we are on Localhost but NOT on the backend port (3000), we fallback to the Cloud Run server URL
+  if (hostname === 'localhost' && window.location.port !== '3000' && window.location.port !== '5173') {
     const backendOrigin = 'https://ais-pre-afrck5lszjlmbr4e76byly-183229866589.asia-southeast1.run.app';
     return `${backendOrigin}${cleanPath}`;
   }
 
-  // Otherwise, use relative URLs
+  // By default, use relative URLs (works for AI Studio preview, deployed Cloud Run, Netlify, and custom domains)
   return cleanPath;
 }
