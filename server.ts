@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
@@ -454,7 +455,7 @@ async function startStandaloneServer() {
   });
 }
 
-if (!process.env.NETLIFY) {
+if (!process.env.NETLIFY && !process.env.LAMBDA_TASK_ROOT && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   startStandaloneServer();
 }
 
