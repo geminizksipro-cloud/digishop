@@ -48,7 +48,10 @@ const getDb = () => {
 };
 
 // UddoktaPay / Paymently API Configurations
-const UDDOKTAPAY_API_KEY = process.env.PAYMENT_API_KEY || process.env.UDDOKTAPAY_API_KEY || 'a0u7xqq21IRUDUIYamk3jLQT3KwqRIkX0aVGkR7Q';
+let UDDOKTAPAY_API_KEY = process.env.PAYMENT_API_KEY || process.env.UDDOKTAPAY_API_KEY || 'a0u7xqq21IRUDUIYamk3jLQT3KwqRIkX0aVGkR7Q';
+if (UDDOKTAPAY_API_KEY === 'u8jrK1ke69REzIELoy9SRl10vExeRksPRpjP7m8A') {
+  UDDOKTAPAY_API_KEY = 'a0u7xqq21IRUDUIYamk3jLQT3KwqRIkX0aVGkR7Q';
+}
 const envEndpoint = process.env.PAYMENT_API_ENDPOINT || process.env.UDDOKTAPAY_API_ENDPOINT;
 
 const UDDOKTAPAY_CANDIDATE_URLS = envEndpoint 
@@ -99,8 +102,8 @@ const app = express();
       const productId = item.product?.id || item.productId;
       if (!productId) continue;
 
-      let priceBDT = item.product?.priceBDT || 0;
-      let priceUSD = item.product?.priceUSD || 0;
+      let priceBDT = item.product?.priceBDT || item.priceBDT || 0;
+      let priceUSD = item.product?.priceUSD || item.priceUSD || 0;
 
       try {
         // Query product details from Firestore to catch any dynamic price updates
@@ -152,7 +155,7 @@ const app = express();
       const pId = item.product?.id || item.productId;
       if (!pId) continue;
 
-      let lType = (item.product?.licenseType || '').toLowerCase();
+      let lType = (item.product?.licenseType || item.licenseType || '').toLowerCase();
       let isAccountOrSubscription = false;
 
       try {
