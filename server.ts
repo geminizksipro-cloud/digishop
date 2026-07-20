@@ -48,7 +48,7 @@ const getDb = () => {
 };
 
 // UddoktaPay / Paymently API Configurations
-const UDDOKTAPAY_API_KEY = process.env.PAYMENT_API_KEY || process.env.UDDOKTAPAY_API_KEY || 'u8jrK1ke69REzIELoy9SRl10vExeRksPRpjP7m8A';
+const UDDOKTAPAY_API_KEY = process.env.PAYMENT_API_KEY || process.env.UDDOKTAPAY_API_KEY || 'a0u7xqq21IRUDUIYamk3jLQT3KwqRIkX0aVGkR7Q';
 const envEndpoint = process.env.PAYMENT_API_ENDPOINT || process.env.UDDOKTAPAY_API_ENDPOINT;
 
 const UDDOKTAPAY_CANDIDATE_URLS = envEndpoint 
